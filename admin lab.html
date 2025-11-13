@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Admin Lab Komputer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    :root {
+      --primary: #22466c;
+      --secondary: #343a40;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #28a745;
+      --danger: #dc3545;
+    }
+
+    body {
+      display: flex;
+      min-height: 100vh;
+      background-color: var(--light);
+      color: var(--dark);
+    }
+
+    .sidebar {
+      width: 250px;
+      background-color: var(--secondary);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100%;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      padding: 20px 0;
+      background-color: var(--dark);
+    }
+
+    .sidebar a {
+      padding: 15px 20px;
+      color: #ddd;
+      text-decoration: none;
+      display: block;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .sidebar a:hover,
+    .sidebar .active {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .main-content {
+      margin-left: 250px;
+      padding: 20px;
+      flex: 1;
+    }
+
+    .header {
+      background-color: var(--primary);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-top: 25px;
+    }
+
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s;
+    }
+
+    .card:hover { transform: scale(1.03); }
+    .card h3 { color: var(--primary); margin-bottom: 10px; }
+
+    .table-container {
+      margin-top: 30px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+      padding-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    tr:hover { background-color: #f1f1f1; }
+
+    .btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-primary { background-color: var(--primary); color: white; }
+    .btn-success { background-color: var(--success); color: white; }
+    .btn-danger { background-color: var(--danger); color: white; }
+    .btn:hover { opacity: 0.9; }
+
+    input[type="text"] {
+      padding: 6px;
+      font-size: 14px;
+      width: 100%;
+    }
+
+    form#addForm {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-bottom: 2px solid #eee;
+    }
+
+    form#addForm input, form#addForm select {
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { width: 70px; }
+      .sidebar h2 { display: none; }
+      .main-content { margin-left: 70px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Admin Lab</h2>
+    <a href="#" class="active">Dashboard</a>
+    <a href="#">Data Komputer</a>
+    <a href="#">Peminjaman</a>
+    <a href="#">User</a>
+    <a href="#">Logout</a>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+      <h1>Dashboard Admin Lab Komputer</h1>
+      <span class="admin-name">Halo, Admin!</span>
+    </div>
+
+    <div class="cards">
+      <div class="card"><h3>Komputer Aktif</h3><p>24 Unit</p></div>
+      <div class="card"><h3>Peminjaman Hari Ini</h3><p>5</p></div>
+      <div class="card"><h3>User Terdaftar</h3><p>32</p></div>
+      <div class="card"><h3>Komputer Rusak</h3><p>2 Unit</p></div>
+    </div>
+
+    <div class="table-container">
+      <!-- Form Tambah Data -->
+      <form id="addForm">
+        <input type="text" id="id" placeholder="ID" required>
+        <input type="text" id="nama" placeholder="Nama Komputer" required>
+        <select id="status" required>
+          <option value="Aktif">Aktif</option>
+          <option value="Dipinjam">Dipinjam</option>
+          <option value="Rusak">Rusak</option>
+        </select>
+        <input type="text" id="peminjam" placeholder="Nama Peminjam (jika ada)">
+        <button type="submit" class="btn btn-success">Tambah Data</button>
+      </form>
+
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nama Komputer</th>
+            <th>Status</th>
+            <th>Peminjam</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>01</td>
+            <td>PC-LAB-01</td>
+            <td>Aktif</td>
+            <td>-</td>
+            <td>
+              <button class="btn btn-success btn-edit">Edit</button>
+              <button class="btn btn-danger btn-delete">Hapus</button>
+            </td>
+          </tr>
+          <tr>
+            <td>02</td>
+            <td>PC-LAB-02</td>
+            <td>Dipinjam</td>
+            <td>Budi</td>
+            <td>
+              <button class="btn btn-success btn-edit">Edit</button>
+              <button class="btn btn-danger btn-delete">Hapus</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const table = document.getElementById("dataTable").querySelector("tbody");
+    const form = document.getElementById("addForm");
+
+    // Load dari localStorage
+    if (localStorage.getItem("labData")) {
+      table.innerHTML = localStorage.getItem("labData");
+    }
+
+    // Tambah data baru
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const id = document.getElementById("id").value.trim();
+      const nama = document.getElementById("nama").value.trim();
+      const status = document.getElementById("status").value;
+      const peminjam = document.getElementById("peminjam").value.trim() || "-";
+
+      if (!id || !nama) return alert("Isi semua data dengan benar!");
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${id}</td>
+        <td>${nama}</td>
+        <td>${status}</td>
+        <td>${peminjam}</td>
+        <td>
+          <button class="btn btn-success btn-edit">Edit</button>
+          <button class="btn btn-danger btn-delete">Hapus</button>
+        </td>
+      `;
+      table.appendChild(row);
+
+      saveData();
+      form.reset();
+    });
+
+    // Event edit / hapus
+    table.addEventListener("click", function (e) {
+      const row = e.target.closest("tr");
+      const cells = row.querySelectorAll("td");
+
+      // Edit
+      if (e.target.classList.contains("btn-edit")) {
+        if (e.target.textContent === "Edit") {
+          for (let i = 1; i <= 3; i++) {
+            const oldValue = cells[i].textContent;
+            cells[i].innerHTML = `<input type="text" value="${oldValue}">`;
+          }
+          e.target.textContent = "Simpan";
+          e.target.classList.remove("btn-success");
+          e.target.classList.add("btn-primary");
+
+          const cancelBtn = document.createElement("button");
+          cancelBtn.textContent = "Batal";
+          cancelBtn.className = "btn btn-danger btn-cancel";
+          e.target.insertAdjacentElement("afterend", cancelBtn);
+        } else {
+          for (let i = 1; i <= 3; i++) {
+            const input = cells[i].querySelector("input");
+            if (input) cells[i].textContent = input.value;
+          }
+          e.target.textContent = "Edit";
+          e.target.classList.remove("btn-primary");
+          e.target.classList.add("btn-success");
+          const cancelBtn = row.querySelector(".btn-cancel");
+          if (cancelBtn) cancelBtn.remove();
+          saveData();
+        }
+      }
+
+      // Batal
+      if (e.target.classList.contains("btn-cancel")) {
+        for (let i = 1; i <= 3; i++) {
+          const input = cells[i].querySelector("input");
+          if (input) cells[i].textContent = input.defaultValue;
+        }
+        const editBtn = row.querySelector(".btn-edit");
+        editBtn.textContent = "Edit";
+        editBtn.classList.remove("btn-primary");
+        editBtn.classList.add("btn-success");
+        e.target.remove();
+      }
+
+      // Hapus
+      if (e.target.classList.contains("btn-delete")) {
+        if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
+          row.remove();
+          saveData();
+        }
+      }
+    });
+
+    // Simpan ke localStorage
+    function saveData() {
+      localStorage.setItem("labData", table.innerHTML);
+    }
+  </script>
+</body>
+</html>

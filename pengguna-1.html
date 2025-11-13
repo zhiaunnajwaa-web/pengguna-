@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistem Manajemen Lab – Pengguna</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --pastel-pink: #F2C4DE;
+    --pastel-blue: #71B1D9;
+    --pastel-green: #2ecc71;
+    --pastel-red: #e74c3c;
+    --pastel-yellow: #FAEAB3;
+    --pastel-bg: #F9F9F9;
+    --text-dark: #34495e;
+    --btn-hover: #e0adc6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+  body { background-color: var(--pastel-bg); color: var(--text-dark); padding: 20px; }
+
+  .card { background: rgb(226, 183, 205); border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); padding: 30px; max-width: 1000px; margin: 30px auto; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .card-header h3 { font-size: 1.4rem; color: var(--text-dark); }
+  .btn { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: 0.3s all; }
+  .btn:hover { opacity: 0.9; }
+  .btn-primary { background-color: var(--pastel-pink); color: white; }
+  .btn-primary:hover { background-color: var(--btn-hover); }
+  .btn-warning { background-color: var(--pastel-yellow); color: var(--text-dark); }
+  .btn-danger { background-color: var(--pastel-red); color: white; }
+  .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  table th, table td { padding: 12px 15px; text-align: left; }
+  table th { background: linear-gradient(90deg, #71B1D9, #F2C4DE); color: white; font-weight: 600; }
+  table tr:nth-child(even) { background-color: #f7f8fa; }
+  table tr:hover { background-color: #d0e7f9; transition: 0.2s; cursor: pointer; }
+
+  .status-active { background-color: var(--pastel-green); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: inline-block; }
+  .status-inactive { background-color: var(--pastel-red); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; display: inline-block; }
+
+  .form-group { margin-bottom: 15px; }
+  .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+  .form-control { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; transition: border 0.2s; }
+  .form-control:focus { border-color: var(--pastel-blue); outline: none; }
+
+  .modal { display: none; position: fixed; top: 0; left: 0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 10px; }
+  .modal-content { background: white; border-radius: 12px; width: 500px; max-width: 100%; padding: 25px 30px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); animation: fadeIn 0.3s ease; border-top: 5px solid var(--pastel-blue); }
+  @keyframes fadeIn { from {opacity: 0; transform: translateY(-20px);} to {opacity:1; transform: translateY(0);} }
+
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .close { font-size: 1.5rem; cursor: pointer; color: #aaa; }
+  .close:hover { color: var(--text-dark); }
+
+  .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+
+  /* Total pengguna */
+  .total-users { margin-top: 10px; font-weight: 500; color: var(--text-dark); }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-header">
+    <h3>SISTEM MANAJEMEN LAB > PENGGUNA</h3>
+    <button class="btn btn-primary" id="addUserBtn"><i class="fas fa-plus"></i> Tambah Pengguna</button>
+  </div>
+
+  <div class="total-users" id="totalUsers">Total Pengguna: 0</div>
+
+  <table id="tblUsers">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nama</th>
+        <th>Email</th>
+        <th>No. Telepon</th>
+        <th>Status</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Data akan di-load dari localStorage -->
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal Tambah/Edit Pengguna -->
+<div id="userModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Tambah / Edit Pengguna</h3>
+      <span class="close">&times;</span>
+    </div>
+    <form id="userForm">
+      <div class="form-group">
+        <label for="userName">Nama Lengkap</label>
+        <input type="text" id="userName" class="form-control" required placeholder="Masukkan nama lengkap">
+      </div>
+      <div class="form-group">
+        <label for="userEmail">Email</label>
+        <input type="email" id="userEmail" class="form-control" required placeholder="Masukkan email">
+      </div>
+      <div class="form-group">
+        <label for="userPhone">No. Telepon</label>
+        <input type="tel" id="userPhone" class="form-control" required placeholder="Masukkan nomor telepon">
+      </div>
+      <div class="form-group">
+        <label for="userStatus">Status</label>
+        <select id="userStatus" class="form-control" required>
+          <option value="active">Aktif</option>
+          <option value="inactive">Nonaktif</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger close-modal">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const userModal = document.getElementById('userModal');
+const addUserBtn = document.getElementById('addUserBtn');
+const closeBtns = document.querySelectorAll('.close, .close-modal');
+const userForm = document.getElementById('userForm');
+const tblUsersBody = document.querySelector('#tblUsers tbody');
+const totalUsersEl = document.getElementById('totalUsers');
+let userCounter = 0;
+
+// ==================== LOCAL STORAGE FUNCTIONS ====================
+function saveUsersToLocalStorage() {
+  const users = [];
+  tblUsersBody.querySelectorAll('tr').forEach(tr => {
+    const cells = tr.querySelectorAll('td');
+    users.push({
+      id: cells[0].textContent,
+      name: cells[1].textContent,
+      email: cells[2].textContent,
+      phone: cells[3].textContent,
+      status: cells[4].querySelector('span').classList.contains('status-active') ? 'active' : 'inactive'
+    });
+  });
+  localStorage.setItem('users', JSON.stringify(users));
+  updateTotalUsers();
+}
+
+function loadUsersFromLocalStorage() {
+  const users = JSON.parse(localStorage.getItem('users')) || [];
+  tblUsersBody.innerHTML = '';
+  userCounter = 0;
+  users.forEach(user => {
+    userCounter++;
+    const statusText = user.status === 'active' ? 'Aktif' : 'Nonaktif';
+    const statusClass = user.status === 'active' ? 'status-active' : 'status-inactive';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${user.id}</td>
+      <td>${user.name}</td>
+      <td>${user.email}</td>
+      <td>${user.phone}</td>
+      <td><span class="${statusClass}">${statusText}</span></td>
+      <td>
+        <button class="btn btn-warning btn-sm edit"><i class="fas fa-edit"></i> Edit</button>
+        <button class="btn btn-danger btn-sm delete"><i class="fas fa-trash"></i> Hapus</button>
+      </td>
+    `;
+    tblUsersBody.appendChild(tr);
+  });
+  updateTotalUsers();
+}
+
+function updateTotalUsers() {
+  const count = tblUsersBody.querySelectorAll('tr').length;
+  totalUsersEl.textContent = `Total Pengguna: ${count}`;
+}
+
+// ==================== MODAL CONTROL ====================
+addUserBtn.addEventListener('click', () => {
+  userForm.reset();
+  userModal.style.display = 'flex';
+  userModal.dataset.editing = "false";
+});
+
+closeBtns.forEach(btn => {
+  btn.addEventListener('click', () => userModal.style.display = 'none');
+});
+
+window.addEventListener('click', e => { if(e.target===userModal) userModal.style.display='none'; });
+
+// ==================== FORM SUBMIT ====================
+userForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const name = userForm.userName.value.trim();
+  const email = userForm.userEmail.value.trim();
+  const phone = userForm.userPhone.value.trim();
+  const statusVal = userForm.userStatus.value;
+  const statusText = statusVal==='active'?'Aktif':'Nonaktif';
+  const statusClass = statusVal==='active'?'status-active':'status-inactive';
+
+  if(userModal.dataset.editing==='true'){
+    const editingRow = tblUsersBody.querySelector('tr.editing');
+    if(editingRow){
+      const cells = editingRow.querySelectorAll('td');
+      cells[1].textContent = name;
+      cells[2].textContent = email;
+      cells[3].textContent = phone;
+      cells[4].innerHTML = `<span class="${statusClass}">${statusText}</span>`;
+      editingRow.classList.remove('editing');
+    }
+  } else {
+    userCounter++;
+    const newId = 'USR'+String(userCounter).padStart(3,'0');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${newId}</td>
+      <td>${name}</td>
+      <td>${email}</td>
+      <td>${phone}</td>
+      <td><span class="${statusClass}">${statusText}</span></td>
+      <td>
+        <button class="btn btn-warning btn-sm edit"><i class="fas fa-edit"></i> Edit</button>
+        <button class="btn btn-danger btn-sm delete"><i class="fas fa-trash"></i> Hapus</button>
+      </td>
+    `;
+    tblUsersBody.appendChild(tr);
+  }
+
+  saveUsersToLocalStorage();
+  userModal.style.display='none';
+  userForm.reset();
+});
+
+// ==================== TABLE ACTIONS ====================
+tblUsersBody.addEventListener('click', e=>{
+  const btn = e.target.closest('button');
+  const tr = e.target.closest('tr');
+  if(!tr) return;
+
+  if(btn){
+    if(btn.classList.contains('delete')){
+      if(confirm('Yakin ingin menghapus pengguna ini?')) {
+        tr.remove();
+        saveUsersToLocalStorage();
+      }
+    } else if(btn.classList.contains('edit')){
+      tr.classList.add('editing');
+      const cells = tr.querySelectorAll('td');
+      userForm.userName.value = cells[1].textContent.trim();
+      userForm.userEmail.value = cells[2].textContent.trim();
+      userForm.userPhone.value = cells[3].textContent.trim();
+      userForm.userStatus.value = cells[4].querySelector('span').classList.contains('status-active')?'active':'inactive';
+      userModal.style.display='flex';
+      userModal.dataset.editing="true";
+    }
+  } else {
+    const cells = tr.querySelectorAll('td');
+    alert(`Detail Pengguna:\nID: ${cells[0].textContent}\nNama: ${cells[1].textContent}\nEmail: ${cells[2].textContent}\nTelepon: ${cells[3].textContent}\nStatus: ${cells[4].textContent}`);
+  }
+});
+
+// ==================== INITIAL LOAD ====================
+loadUsersFromLocalStorage();
+</script>
+
+</body>
+</html>
